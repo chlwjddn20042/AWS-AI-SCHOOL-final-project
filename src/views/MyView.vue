@@ -1,6 +1,10 @@
 <template>
-  <AppLayout title="마이" :showTabs="true" contentWidth="narrow">
-    <div class="section">
+  <AppLayout :showTabs="true" contentWidth="narrow">
+    <template #header>
+      <AppHeader title="마이" :showBack="true" />
+    </template>
+
+    <section class="section">
       <div class="header-row">
         <h2>성향 분석 히스토리</h2>
         <button class="ghost" type="button" @click="goStart">새 성향 분석 시작</button>
@@ -14,14 +18,14 @@
           :to="`/analysis/result/${item.id}`"
           class="history-item"
         >
-          <div>
+          <div class="avatar" aria-hidden="true"></div>
+          <div class="info">
             <strong>{{ item.summary }}</strong>
-            <p class="muted">{{ formatDate(item.createdAt) }}</p>
           </div>
-          <span class="chevron">›</span>
+          <span class="date">{{ formatDate(item.createdAt) }}</span>
         </RouterLink>
       </div>
-    </div>
+    </section>
   </AppLayout>
 </template>
 
@@ -29,6 +33,7 @@
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import AppLayout from '../layouts/AppLayout.vue';
+import AppHeader from '../components/AppHeader.vue';
 import { useAnalysisStore } from '../stores/analysisStore';
 
 const router = useRouter();
@@ -71,9 +76,10 @@ const goStart = () => {
 }
 
 .history-item {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
+  gap: 12px;
   padding: 12px 14px;
   border-radius: 12px;
   border: 1px solid var(--border);
@@ -82,12 +88,24 @@ const goStart = () => {
   color: var(--text);
 }
 
-.history-item p {
-  margin: 4px 0 0;
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
 }
 
-.chevron {
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.date {
+  font-size: 12px;
   color: var(--muted);
+  text-align: right;
 }
 
 .empty {

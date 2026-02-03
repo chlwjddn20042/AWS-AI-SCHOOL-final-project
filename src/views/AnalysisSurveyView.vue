@@ -1,41 +1,42 @@
 <template>
-  <AppLayout title="성향 분석 입력" :showTabs="false" contentWidth="wide">
+  <AppLayout contentWidth="narrow">
+    <template #header>
+      <AppHeader title="성향 분석 입력" :showBack="true" />
+    </template>
+
     <div class="survey">
-      <div class="survey-header">
-        <div class="survey-title">
-          <h2>성향 분석 입력</h2>
-          <span class="muted">{{ currentStep }}/{{ totalSteps }}</span>
-        </div>
-        <div class="progress">
-          <div class="progress-bar" :style="{ width: progressPercent + '%' }"></div>
+      <div class="progress">
+        <span>{{ step }} / 5</span>
+        <div class="bar">
+          <div class="fill" :style="{ width: `${(step / 5) * 100}%` }"></div>
         </div>
       </div>
 
-      <div class="survey-body">
-        <div v-for="item in pageQuestions" :key="item.index" class="question">
-          <span class="question-text">{{ item.text }}</span>
-          <div class="radio-row">
-            <label v-for="score in scores" :key="score" class="choice">
+      <div class="question-list">
+        <div v-for="question in currentQuestions" :key="question.index" class="question">
+          <p class="question-text">문항 {{ question.index + 1 }}: 임시 질문 텍스트</p>
+          <div class="likert">
+            <label v-for="value in 5" :key="value" class="likert-option">
               <input
                 type="radio"
-                :name="`q-${item.index}`"
-                :value="score"
-                :checked="answers[item.index] === score"
-                @change="updateAnswer(item.index, score)"
+                :name="`q-${question.index}`"
+                :value="value"
+                :checked="answers[question.index] === value"
+                @change="setAnswer(question.index, value)"
               />
-              {{ score }}
+              <span>{{ value }}</span>
             </label>
           </div>
         </div>
       </div>
 
-      <div class="survey-actions">
-        <button class="secondary" type="button" :disabled="currentStep === 1" @click="prevStep">
+      <div class="actions">
+        <button class="ghost" type="button" :disabled="step === 1" @click="prevStep">
           이전
         </button>
-        <button class="primary" type="button" @click="nextStep">
-          {{ currentStep === totalSteps ? '완료' : '다음' }}
-        </button>
+        <PrimaryButton type="button" @click="nextStep">
+          {{ step === 5 ? '완료' : '다음' }}
+        </PrimaryButton>
       </div>
     </div>
   </AppLayout>
@@ -45,46 +46,39 @@
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import AppLayout from '../layouts/AppLayout.vue';
+import AppHeader from '../components/AppHeader.vue';
+import PrimaryButton from '../components/PrimaryButton.vue';
 import { useAnalysisStore } from '../stores/analysisStore';
 
 const router = useRouter();
 const analysisStore = useAnalysisStore();
+const step = ref(1);
 
-const totalSteps = 5;
-const questionsPerPage = 10;
-const currentStep = ref(1);
-const scores = [1, 2, 3, 4, 5];
-
-const questions = Array.from({ length: 50 }, (_, index) => ({
-  index,
-  text: `문항 ${index + 1}: 임시 질문 텍스트`,
-}));
+const questions = Array.from({ length: 50 }, (_, index) => ({ index }));
 
 const answers = computed(() => analysisStore.surveyAnswers);
 
-const pageQuestions = computed(() => {
-  const start = (currentStep.value - 1) * questionsPerPage;
-  return questions.slice(start, start + questionsPerPage);
+const currentQuestions = computed(() => {
+  const start = (step.value - 1) * 10;
+  return questions.slice(start, start + 10);
 });
 
-const progressPercent = computed(() => (currentStep.value / totalSteps) * 100);
-
-const updateAnswer = (index: number, score: number) => {
-  analysisStore.updateSurvey(index, score);
-};
-
-const prevStep = () => {
-  if (currentStep.value > 1) {
-    currentStep.value -= 1;
-  }
+const setAnswer = (index: number, value: number) => {
+  analysisStore.updateSurvey(index, value);
 };
 
 const nextStep = () => {
-  if (currentStep.value < totalSteps) {
-    currentStep.value += 1;
-    return;
+  if (step.value < 5) {
+    step.value += 1;
+  } else {
+    router.push('/analysis/loading');
   }
-  router.push('/analysis/loading');
+};
+
+const prevStep = () => {
+  if (step.value > 1) {
+    step.value -= 1;
+  }
 };
 </script>
 
@@ -95,86 +89,86 @@ const nextStep = () => {
   gap: 16px;
 }
 
-.survey-header {
+.progress {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
 }
 
-.survey-title {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-}
-
-.survey-title h2 {
-  margin: 0;
-  font-size: 18px;
-}
-
-.progress {
+.bar {
+  width: 100%;
   height: 6px;
   border-radius: 999px;
   background: var(--surface-muted);
   overflow: hidden;
 }
 
-.progress-bar {
+.fill {
   height: 100%;
-  background: var(--primary);
+  background: var(--text);
 }
 
-.survey-body {
-  max-height: 60vh;
-  overflow-y: auto;
-  padding-right: 6px;
+.question-list {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  max-height: 55vh;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .question {
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 14px;
   background: var(--surface);
+  border-radius: 12px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
 .question-text {
+  margin: 0;
   font-size: 14px;
 }
 
-.choice {
-  display: inline-flex;
-  align-items: center;
+.likert {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   gap: 6px;
-  margin-right: 10px;
 }
 
-.survey-actions {
+.likert-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 0;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.likert-option input {
+  margin: 0;
+}
+
+.actions {
   display: flex;
   gap: 10px;
 }
 
-.secondary,
-.primary {
+.ghost {
   flex: 1;
-  padding: 10px 12px;
-  border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--surface);
+  border-radius: 12px;
+  padding: 12px 16px;
 }
 
-.primary {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: #fff;
-}
-
-.secondary:disabled {
+.ghost:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

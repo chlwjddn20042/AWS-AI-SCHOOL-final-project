@@ -1,5 +1,9 @@
 <template>
-  <AppLayout title="취향 가져오기" :showTabs="false" contentWidth="narrow">
+  <AppLayout contentWidth="narrow">
+    <template #header>
+      <AppHeader title="취향 가져오기" :showBack="true" />
+    </template>
+
     <div class="section">
       <button class="secondary" type="button" @click="loadTaste">가져오기</button>
       <div class="info-card">
@@ -25,6 +29,7 @@
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import AppLayout from '../layouts/AppLayout.vue';
+import AppHeader from '../components/AppHeader.vue';
 import PrimaryButton from '../components/PrimaryButton.vue';
 import { useAnalysisStore } from '../stores/analysisStore';
 import { analysisService } from '../services/analysisService';

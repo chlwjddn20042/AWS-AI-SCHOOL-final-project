@@ -1,14 +1,14 @@
 <template>
-  <AppLayout title="분석 중" :showTabs="false" contentWidth="narrow">
+  <AppLayout :showTabs="false" contentWidth="narrow">
     <div class="loading">
       <div class="spinner" aria-hidden="true"></div>
-      <p class="muted">분석을 진행 중입니다.</p>
+      <p class="muted">분석 중입니다...</p>
     </div>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onBeforeUnmount, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import AppLayout from '../layouts/AppLayout.vue';
 import { useAnalysisStore } from '../stores/analysisStore';
@@ -16,22 +16,30 @@ import { useAnalysisStore } from '../stores/analysisStore';
 const router = useRouter();
 const analysisStore = useAnalysisStore();
 
+let timer: number | undefined;
+
 onMounted(() => {
   const result = analysisStore.finalizeResult();
-  setTimeout(() => {
+  timer = window.setTimeout(() => {
     router.push(`/analysis/result/${result.id}`);
   }, 1200);
+});
+
+onBeforeUnmount(() => {
+  if (timer) {
+    window.clearTimeout(timer);
+  }
 });
 </script>
 
 <style scoped>
 .loading {
-  min-height: 50vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 16px;
+  min-height: 60vh;
 }
 
 .spinner {
@@ -39,8 +47,8 @@ onMounted(() => {
   height: 40px;
   border-radius: 50%;
   border: 3px solid var(--border);
-  border-top-color: var(--primary);
-  animation: spin 1s linear infinite;
+  border-top-color: var(--text);
+  animation: spin 0.9s linear infinite;
 }
 
 @keyframes spin {

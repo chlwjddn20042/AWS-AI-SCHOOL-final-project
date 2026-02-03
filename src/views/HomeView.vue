@@ -1,10 +1,8 @@
 <template>
-  <AppLayout :showTabs="true" :showHeader="false" contentWidth="narrow">
-    <header class="home-header">
-      <span class="spacer" aria-hidden="true"></span>
-      <h1 class="home-title">다마코치</h1>
-      <button class="menu" type="button" aria-label="메뉴">☰</button>
-    </header>
+  <AppLayout :showTabs="true" contentWidth="narrow">
+    <template #header>
+      <AppHeader title="다마코치" :showLogout="true" />
+    </template>
 
     <section class="character-card">
       <div class="avatar" aria-hidden="true"></div>
@@ -16,28 +14,17 @@
 
     <section class="quest-list">
       <button
-        v-for="item in quickQuests"
+        v-for="item in questItems"
         :key="item.title"
         class="quest-row"
+        :class="{ highlight: item.highlight }"
         type="button"
-        @click="toggleQuick(item)"
+        @click="toggleQuest(item)"
       >
-        <span class="status-dot" :class="{ done: item.done }"></span>
+        <span class="status-dot" :class="{ done: item.checked }"></span>
         <span class="quest-title">{{ item.title }}</span>
         <span class="chevron">›</span>
       </button>
-
-      <RouterLink class="quest-row" to="/quest?tab=daily">
-        <span class="status-dot"></span>
-        <span class="quest-title">일일 퀘스트</span>
-        <span class="chevron">›</span>
-      </RouterLink>
-
-      <RouterLink class="quest-row highlight" to="/quest?tab=weekly">
-        <span class="status-dot"></span>
-        <span class="quest-title">주간 퀘스트</span>
-        <span class="chevron">›</span>
-      </RouterLink>
     </section>
   </AppLayout>
 </template>
@@ -45,66 +32,47 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 import AppLayout from '../layouts/AppLayout.vue';
+import AppHeader from '../components/AppHeader.vue';
+import { useQuestStore } from '../stores/questStore';
 
-type QuickQuest = { title: string; done: boolean };
+type HomeQuest = {
+  title: string;
+  checked: boolean;
+  highlight?: boolean;
+};
 
-const quickQuests = reactive<QuickQuest[]>([
-  { title: '물 1L 이상 마시기', done: false },
-  { title: '10회 이상 자리에서 일어나 스트레칭', done: false },
+const questStore = useQuestStore();
+
+const questItems = reactive<HomeQuest[]>([
+  { title: '물 1L 이상 마시기', checked: false },
+  { title: '10회 이상 자리에서 일어나 스트레칭', checked: false },
+  { title: '일일 퀘스트', checked: false },
+  { title: '주간 퀘스트', checked: false, highlight: true },
 ]);
 
-const toggleQuick = (item: QuickQuest) => {
-  item.done = !item.done;
+const toggleQuest = (item: HomeQuest) => {
+  item.checked = !item.checked;
+  if (item.checked) {
+    questStore.addEvent(item.title, 'completed');
+  }
 };
 </script>
 
 <style scoped>
-.home-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 4px 4px 0;
-}
-
-.home-title {
-  font-size: 20px;
-  margin: 0;
-  text-align: center;
-  flex: 1;
-}
-
-.menu {
-  border: 1px solid var(--border);
-  background: var(--surface);
-  border-radius: 10px;
-  width: 36px;
-  height: 36px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--muted);
-}
-
-.spacer {
-  width: 36px;
-  height: 36px;
-}
-
 .character-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
   padding: 20px 16px;
-  border-radius: 24px;
+  border-radius: 16px;
   background: var(--surface);
   border: 1px solid var(--border);
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
 }
 
 .avatar {
-  width: 96px;
-  height: 96px;
+  width: 112px;
+  height: 112px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--surface-muted);
@@ -137,16 +105,16 @@ const toggleQuick = (item: QuickQuest) => {
   gap: 12px;
   align-items: center;
   padding: 14px 16px;
-  border-radius: 14px;
+  border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);
-  text-decoration: none;
 }
 
 .quest-row.highlight {
-  background: var(--primary-soft);
-  border-color: rgba(37, 99, 235, 0.3);
+  border-color: rgba(16, 24, 40, 0.2);
+  background: #f8fafc;
+  font-weight: 600;
 }
 
 .status-dot {
@@ -157,7 +125,7 @@ const toggleQuick = (item: QuickQuest) => {
 }
 
 .status-dot.done {
-  background: var(--primary);
+  background: var(--text);
 }
 
 .quest-title {
