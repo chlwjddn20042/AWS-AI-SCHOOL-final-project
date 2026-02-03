@@ -1,6 +1,6 @@
 <template>
-  <AppLayout title="챗봇" :showTabs="true">
-    <BaseCard class="chat">
+  <AppLayout title="챗봇" :showTabs="true" contentWidth="narrow">
+    <div class="chat">
       <div class="messages">
         <div
           v-for="message in messages"
@@ -12,17 +12,16 @@
         </div>
       </div>
       <form class="input-row" @submit.prevent="send">
-        <input v-model="text" class="input" placeholder="메시지" />
-        <button type="submit" class="send">전송</button>
+        <input v-model="text" class="input" type="text" placeholder="메시지 입력" />
+        <button class="send" type="submit">전송</button>
       </form>
-    </BaseCard>
+    </div>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import AppLayout from '../layouts/AppLayout.vue';
-import BaseCard from '../components/BaseCard.vue';
 import { useChatStore } from '../stores/chatStore';
 
 const chatStore = useChatStore();
@@ -44,29 +43,35 @@ const send = () => {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  height: calc(100vh - 160px);
 }
 
 .messages {
+  flex: 1;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 360px;
-  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .bubble {
-  max-width: 70%;
-  padding: 8px 12px;
-  border-radius: 14px;
-  background: #fff;
-  border: 1px solid var(--line);
+  max-width: 75%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
 }
 
 .bubble.user {
   align-self: flex-end;
-  background: var(--accent);
+  background: var(--primary);
   color: #fff;
-  border-color: var(--accent);
+  border-color: var(--primary);
+}
+
+.bubble.bot {
+  align-self: flex-start;
 }
 
 .input-row {
@@ -76,16 +81,17 @@ const send = () => {
 
 .input {
   flex: 1;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  padding: 8px 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
 }
 
 .send {
+  padding: 10px 16px;
+  border-radius: 12px;
   border: none;
-  background: var(--line);
+  background: var(--primary);
   color: #fff;
-  border-radius: 999px;
-  padding: 8px 12px;
+  font-weight: 600;
 }
 </style>

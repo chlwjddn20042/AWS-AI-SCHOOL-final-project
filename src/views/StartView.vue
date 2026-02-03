@@ -1,8 +1,7 @@
 <template>
   <div class="page start">
     <div class="section">
-      <h1 class="logo">Mindful Pocket</h1>
-      <p class="muted">오늘의 마음 루틴</p>
+      <h1 class="logo">다마코치</h1>
     </div>
     <div class="section">
       <RouterLink to="/login" class="link">
@@ -27,7 +26,7 @@ import PrimaryButton from '../components/PrimaryButton.vue';
 
 .logo {
   margin: 0 0 8px;
-  font-size: 24px;
+  font-size: 26px;
 }
 
 .link {

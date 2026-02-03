@@ -1,9 +1,12 @@
 :root {
-  --bgTop: #f7f0e6;
-  --bgBottom: #cfe0d0;
-  --line: #6b4b3e;
-  --accent: #e28b6e;
-  --beige: #eadccb;
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --surface-muted: #f1f2f4;
+  --border: #d9dde3;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --primary: #2563eb;
+  --primary-soft: #e0e7ff;
   font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
 }
 
@@ -13,8 +16,8 @@
 
 body {
   margin: 0;
-  background: linear-gradient(180deg, var(--bgTop), var(--bgBottom));
-  color: var(--line);
+  background: var(--bg);
+  color: var(--text);
 }
 
 a {
@@ -36,7 +39,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 20px;
+  padding: 24px 20px 32px;
 }
 
 .section {
@@ -47,7 +50,7 @@ button {
 
 .muted {
   font-size: 12px;
-  color: rgba(107, 75, 62, 0.7);
+  color: var(--muted);
 }
 
 .pill {
@@ -55,8 +58,10 @@ button {
   align-items: center;
   padding: 4px 10px;
   border-radius: 999px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--border);
   font-size: 12px;
+  background: var(--surface);
+  color: var(--muted);
 }
 
 .grid {
@@ -77,13 +82,14 @@ button {
 .tag {
   padding: 6px 10px;
   border-radius: 999px;
-  border: 1px solid var(--line);
-  background: #fff;
+  border: 1px solid var(--border);
+  background: var(--surface);
   font-size: 12px;
 }
 
 .radio-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 

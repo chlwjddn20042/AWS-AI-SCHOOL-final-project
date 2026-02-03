@@ -1,71 +1,83 @@
 <template>
-  <AppLayout title="결과" :showTabs="true">
-    <BaseCard>
-      <div class="result">
-        <div class="avatar">★</div>
-        <div>
-          <p class="summary">{{ result?.summary }}</p>
-          <span class="muted">{{ result?.character }}</span>
-        </div>
+  <AppLayout title="분석 결과" :showTabs="false" contentWidth="narrow">
+    <div class="section">
+      <div class="summary-card">
+        <h2>{{ result?.summary || '분석 결과' }}</h2>
+        <p class="muted">{{ formattedDate }}</p>
       </div>
-    </BaseCard>
 
-    <div class="grid">
-      <ListItem>성향 분석</ListItem>
-      <ListItem>취향 분석</ListItem>
-      <ListItem @click="goCoaching" class="clickable">행동 코칭</ListItem>
+      <div class="result-card">
+        <h3>성향</h3>
+        <p>{{ result?.traits || '데이터가 없습니다.' }}</p>
+      </div>
+      <div class="result-card">
+        <h3>취향</h3>
+        <p>{{ result?.taste || '데이터가 없습니다.' }}</p>
+      </div>
+      <div class="result-card">
+        <h3>행동 코칭</h3>
+        <p>{{ result?.coaching || '데이터가 없습니다.' }}</p>
+      </div>
+
+      <PrimaryButton type="button" @click="goMy">마이로 이동</PrimaryButton>
     </div>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import AppLayout from '../layouts/AppLayout.vue';
-import BaseCard from '../components/BaseCard.vue';
-import ListItem from '../components/ListItem.vue';
+import PrimaryButton from '../components/PrimaryButton.vue';
 import { useAnalysisStore } from '../stores/analysisStore';
 
+const route = useRoute();
 const router = useRouter();
 const analysisStore = useAnalysisStore();
 
-onMounted(() => {
-  if (!analysisStore.currentResult) {
-    analysisStore.finalizeResult();
-  }
+const resultId = computed(() => String(route.params.id ?? ''));
+
+const result = computed(() =>
+  analysisStore.results.find((item) => item.id === resultId.value),
+);
+
+const formattedDate = computed(() => {
+  if (!result.value) return '';
+  return new Date(result.value.createdAt).toLocaleDateString();
 });
 
-const result = computed(() => analysisStore.currentResult);
-
-const goCoaching = () => {
-  router.push('/coaching');
+const goMy = () => {
+  router.push('/my');
 };
 </script>
 
 <style scoped>
-.result {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.avatar {
-  width: 48px;
-  height: 48px;
+.summary-card {
+  padding: 16px;
   border-radius: 16px;
-  border: 1px solid var(--line);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #fff;
+  border: 1px solid var(--border);
+  background: var(--surface);
 }
 
-.summary {
+.summary-card h2 {
   margin: 0 0 6px;
-  font-weight: 600;
+  font-size: 20px;
 }
 
-.clickable {
-  cursor: pointer;
+.result-card {
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.result-card h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.result-card p {
+  margin: 0;
+  color: var(--text);
 }
 </style>

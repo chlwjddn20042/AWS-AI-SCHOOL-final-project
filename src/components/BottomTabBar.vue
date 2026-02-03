@@ -7,7 +7,8 @@
       class="tab"
       :class="{ active: route.path.startsWith(tab.path) }"
     >
-      {{ tab.label }}
+      <span class="icon" aria-hidden="true">{{ tab.icon }}</span>
+      <span class="label">{{ tab.label }}</span>
     </RouterLink>
   </nav>
 </template>
@@ -18,10 +19,10 @@ import { useRoute } from 'vue-router';
 const route = useRoute();
 
 const tabs = [
-  { label: '홈', path: '/home' },
-  { label: '퀘스트', path: '/quest' },
-  { label: '챗봇', path: '/chatbot' },
-  { label: '마이', path: '/my' },
+  { label: 'Home', path: '/home', icon: '⌂' },
+  { label: 'Quest', path: '/quest', icon: '✓' },
+  { label: 'Chatbot', path: '/chatbot', icon: '💬' },
+  { label: 'My', path: '/my', icon: '👤' },
 ];
 </script>
 
@@ -29,8 +30,8 @@ const tabs = [
 .tabbar {
   position: sticky;
   bottom: 0;
-  background: #fff;
-  border-top: 1px solid var(--line);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   padding: 8px 12px 12px;
@@ -39,16 +40,25 @@ const tabs = [
 
 .tab {
   text-align: center;
-  padding: 8px 0;
-  border-radius: 999px;
+  padding: 6px 0;
+  border-radius: 12px;
   border: 1px solid transparent;
-  color: var(--line);
+  color: var(--muted);
   text-decoration: none;
-  font-size: 13px;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.icon {
+  font-size: 16px;
 }
 
 .tab.active {
-  border-color: var(--accent);
-  color: var(--accent);
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-soft);
 }
 </style>

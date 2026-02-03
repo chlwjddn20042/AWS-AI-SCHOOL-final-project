@@ -12,14 +12,15 @@ defineProps<{ type?: 'button' | 'submit'; disabled?: boolean }>();
 .button {
   width: 100%;
   padding: 12px 16px;
-  border-radius: 999px;
+  border-radius: 12px;
   border: none;
-  background: var(--accent);
+  background: var(--primary);
   color: #fff;
   font-weight: 600;
 }
 
 .button:disabled {
   opacity: 0.6;
+  cursor: not-allowed;
 }
 </style>

@@ -5,8 +5,6 @@ import { authService } from '../services/authService';
 export type UserProfile = {
   name: string;
   email: string;
-  gender: '남' | '여' | '';
-  birthDate: string;
 };
 
 type AuthState = {
@@ -17,8 +15,6 @@ type AuthState = {
 const defaultUser: UserProfile = {
   name: '',
   email: '',
-  gender: '',
-  birthDate: '',
 };
 
 export const useAuthStore = defineStore('auth', {

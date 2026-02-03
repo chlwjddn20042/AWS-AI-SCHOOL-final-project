@@ -1,82 +1,74 @@
 import { defineStore } from 'pinia';
 import { loadFromStorage, saveToStorage } from '../utils/storage';
 import { analysisService } from '../services/analysisService';
-import type { UserProfile } from './authStore';
 
 export type AnalysisInputForm = {
   name: string;
   age: string;
-  gender: '남' | '여' | '';
-  hobby: string;
-  sleepStart: string;
-  sleepEnd: string;
-  exercise: '예' | '아니오' | '';
-  pet: string;
-  mbti: string;
-  outingCount: string;
-  satisfaction: '맞음' | '틀림' | '';
-  expressionApps: string[];
+  occupation: string;
+};
+
+export type YoutubeTaste = {
+  channels: string[];
+  keywords: string[];
 };
 
 export type AnalysisResult = {
   id: string;
   summary: string;
-  character: string;
+  traits: string;
+  taste: string;
+  coaching: string;
   createdAt: string;
 };
 
 type AnalysisState = {
-  inputForm: AnalysisInputForm;
-  surveyAnswers: Record<string, number>;
+  input: AnalysisInputForm;
+  youtubeTaste: YoutubeTaste;
+  surveyAnswers: number[];
   results: AnalysisResult[];
-  currentResult: AnalysisResult | null;
 };
 
 const emptyForm: AnalysisInputForm = {
   name: '',
   age: '',
-  gender: '',
-  hobby: '',
-  sleepStart: '',
-  sleepEnd: '',
-  exercise: '',
-  pet: '',
-  mbti: '',
-  outingCount: '',
-  satisfaction: '',
-  expressionApps: [],
+  occupation: '',
 };
+
+const emptyTaste: YoutubeTaste = {
+  channels: [],
+  keywords: [],
+};
+
+const emptySurvey = Array.from({ length: 50 }, () => 0);
 
 export const useAnalysisStore = defineStore('analysis', {
   state: (): AnalysisState => ({
-    inputForm: loadFromStorage('analysis.inputForm', emptyForm),
-    surveyAnswers: loadFromStorage('analysis.surveyAnswers', {}),
+    input: loadFromStorage('analysis.input', emptyForm),
+    youtubeTaste: loadFromStorage('analysis.youtubeTaste', emptyTaste),
+    surveyAnswers: loadFromStorage('analysis.surveyAnswers', emptySurvey),
     results: loadFromStorage('analysis.results', []),
-    currentResult: loadFromStorage('analysis.currentResult', null),
   }),
   actions: {
-    hydrateFromUser(user: UserProfile) {
-      this.inputForm = {
-        ...this.inputForm,
-        name: user.name || this.inputForm.name,
-        gender: user.gender || this.inputForm.gender,
-      };
-      saveToStorage('analysis.inputForm', this.inputForm);
+    updateInput(partial: Partial<AnalysisInputForm>) {
+      this.input = { ...this.input, ...partial };
+      saveToStorage('analysis.input', this.input);
     },
-    updateForm(partial: Partial<AnalysisInputForm>) {
-      this.inputForm = { ...this.inputForm, ...partial };
-      saveToStorage('analysis.inputForm', this.inputForm);
+    setYoutubeTaste(taste: YoutubeTaste) {
+      this.youtubeTaste = taste;
+      saveToStorage('analysis.youtubeTaste', this.youtubeTaste);
     },
-    updateSurvey(questionId: string, value: number) {
-      this.surveyAnswers = { ...this.surveyAnswers, [questionId]: value };
+    updateSurvey(index: number, value: number) {
+      const updated = [...this.surveyAnswers];
+      updated[index] = value;
+      this.surveyAnswers = updated;
       saveToStorage('analysis.surveyAnswers', this.surveyAnswers);
     },
     finalizeResult() {
-      const result = analysisService.createResult(this.inputForm, this.surveyAnswers);
-      this.currentResult = result;
+      const result = analysisService.createResult(this.input, this.youtubeTaste, this.surveyAnswers);
       this.results = [result, ...this.results];
-      saveToStorage('analysis.currentResult', this.currentResult);
       saveToStorage('analysis.results', this.results);
+      return result;
     },
   },
 });

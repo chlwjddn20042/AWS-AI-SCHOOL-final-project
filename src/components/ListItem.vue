@@ -15,17 +15,17 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 14px;
-  border-radius: 14px;
-  border: 1px solid var(--line);
-  background: #fff;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
 }
 
 .content {
-  color: var(--line);
+  color: var(--text);
 }
 
 .meta {
   font-size: 12px;
-  color: var(--line);
+  color: var(--muted);
 }
 </style>
