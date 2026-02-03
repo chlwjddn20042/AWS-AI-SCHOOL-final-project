@@ -1,7 +1,7 @@
 <template>
-  <AppLayout contentWidth="narrow">
+  <AppLayout>
     <template #header>
-      <AppHeader title="로그인" :showBack="true" />
+      <AppHeader title="로그인" />
     </template>
 
     <form class="stack" @submit.prevent="onSubmit">

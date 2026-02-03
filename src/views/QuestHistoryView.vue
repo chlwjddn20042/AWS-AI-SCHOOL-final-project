@@ -1,14 +1,25 @@
 <template>
-  <AppLayout contentWidth="narrow">
+  <AppLayout>
     <template #header>
-      <AppHeader title="퀘스트 히스토리" :showBack="true" />
+      <AppHeader title="퀘스트 히스토리" :showBack="true" backTo="/quest" />
     </template>
 
     <section class="section">
       <div class="month-controls">
-        <button class="nav-button" type="button" @click="prevMonth">이전</button>
-        <div class="month-label">{{ monthLabel }}</div>
-        <button class="nav-button" type="button" @click="nextMonth">다음</button>
+        <label class="select-field">
+          <span class="select-label">연도</span>
+          <select v-model.number="currentYear" class="select">
+            <option v-for="year in years" :key="year" :value="year">{{ year }}년</option>
+          </select>
+        </label>
+        <label class="select-field">
+          <span class="select-label">월</span>
+          <select v-model.number="currentMonth" class="select">
+            <option v-for="month in months" :key="month" :value="month - 1">
+              {{ String(month).padStart(2, '0') }}월
+            </option>
+          </select>
+        </label>
       </div>
 
       <div class="calendar">
@@ -44,8 +55,9 @@
       <ul v-else class="history-list">
         <li v-for="event in selectedEvents" :key="event.id" class="history-item">
           <span class="dot" :class="event.status"></span>
-          <span class="history-text">{{ event.title }}</span>
-          <span v-if="event.status === 'deleted'" class="deleted">삭제됨</span>
+          <span class="history-text">
+            {{ event.title }}<span v-if="event.status === 'deleted'"> (삭제됨)</span>
+          </span>
         </li>
       </ul>
     </section>
@@ -53,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import AppLayout from '../layouts/AppLayout.vue';
 import AppHeader from '../components/AppHeader.vue';
 import { useQuestStore } from '../stores/questStore';
@@ -66,9 +78,12 @@ const currentMonth = ref(today.getMonth());
 
 const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
 
-const monthLabel = computed(
-  () => `${currentYear.value}년 ${String(currentMonth.value + 1).padStart(2, '0')}월`,
-);
+const years = computed(() => {
+  const current = today.getFullYear();
+  return Array.from({ length: 5 }, (_, index) => current - 2 + index);
+});
+
+const months = Array.from({ length: 12 }, (_, index) => index + 1);
 
 type DayCell = {
   dateKey: string;
@@ -77,7 +92,29 @@ type DayCell = {
   events: ReturnType<typeof getEvents>;
 };
 
-const getEvents = (dateKey: string) => questStore.eventsByDate[dateKey] || [];
+type HistoryEvent = {
+  id: string;
+  title: string;
+  status: 'completed' | 'deleted';
+};
+
+const getEvents = (dateKey: string): HistoryEvent[] => {
+  const history = questStore.completionByDate[dateKey];
+  if (!history) {
+    return [];
+  }
+  const completed = history.completed.map((title, index) => ({
+    id: `completed-${dateKey}-${index}`,
+    title,
+    status: 'completed' as const,
+  }));
+  const deleted = history.deleted.map((title, index) => ({
+    id: `deleted-${dateKey}-${index}`,
+    title,
+    status: 'deleted' as const,
+  }));
+  return [...completed, ...deleted];
+};
 
 const weeks = computed(() => {
   const year = currentYear.value;
@@ -129,51 +166,44 @@ const weeks = computed(() => {
   return grouped;
 });
 
-const selectedEvents = computed(() => questStore.eventsByDate[selectedDate.value] || []);
+const selectedEvents = computed(() => getEvents(selectedDate.value));
 
 const selectDate = (dateKey: string) => {
   selectedDate.value = dateKey;
 };
 
-const prevMonth = () => {
-  if (currentMonth.value === 0) {
-    currentYear.value -= 1;
-    currentMonth.value = 11;
-  } else {
-    currentMonth.value -= 1;
-  }
-};
-
-const nextMonth = () => {
-  if (currentMonth.value === 11) {
-    currentYear.value += 1;
-    currentMonth.value = 0;
-  } else {
-    currentMonth.value += 1;
-  }
-};
+watch([currentYear, currentMonth], () => {
+  const date = new Date(currentYear.value, currentMonth.value, 1);
+  selectedDate.value = date.toISOString().slice(0, 10);
+});
 </script>
 
 <style scoped>
 .month-controls {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  align-items: flex-end;
+  gap: 12px;
 }
 
-.month-label {
-  font-weight: 600;
-  font-size: 16px;
+.select-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
 }
 
-.nav-button {
-  border: 1px solid var(--border);
-  background: var(--surface);
-  border-radius: 8px;
-  padding: 6px 10px;
+.select-label {
   font-size: 12px;
   color: var(--muted);
+}
+
+.select {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--text);
 }
 
 .calendar {
@@ -257,11 +287,6 @@ const nextMonth = () => {
 
 .history-text {
   flex: 1;
-}
-
-.deleted {
-  color: var(--danger);
-  font-size: 12px;
 }
 
 .empty {

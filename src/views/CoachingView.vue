@@ -1,7 +1,7 @@
 <template>
   <AppLayout :showTabs="true">
     <template #header>
-      <AppHeader title="행동 코칭" :showBack="true" />
+      <AppHeader title="행동 코칭" />
     </template>
 
     <BaseCard>

@@ -1,7 +1,7 @@
 <template>
-  <AppLayout contentWidth="narrow">
+  <AppLayout>
     <template #header>
-      <AppHeader title="분석 결과" :showBack="true" />
+      <AppHeader title="분석 결과" :showBack="true" backTo="/my" />
     </template>
 
     <div class="section">

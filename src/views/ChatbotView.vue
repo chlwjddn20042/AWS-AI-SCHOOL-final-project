@@ -1,7 +1,7 @@
 <template>
-  <AppLayout :showTabs="true" contentWidth="narrow">
+  <AppLayout :showTabs="true">
     <template #header>
-      <AppHeader title="챗봇" :showBack="true" />
+      <AppHeader title="챗봇" />
     </template>
 
     <div class="chat">

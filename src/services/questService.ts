@@ -47,4 +47,12 @@ export const questService = {
   getReplacementTasks(type: QuestType, count: number, excludeTitles: string[]): QuestItem[] {
     return pickTasks(type, count, excludeTitles);
   },
+  getHomeQuestItems() {
+    return [
+      { title: '물 1L 이상 마시기', type: 'daily' as const },
+      { title: '10회 이상 자리에서 일어나 스트레칭', type: 'daily' as const },
+      { title: '오늘 할 일 3가지 정리', type: 'daily' as const },
+      { title: '주간 루틴 점검', type: 'weekly' as const },
+    ];
+  },
 };

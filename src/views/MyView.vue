@@ -1,7 +1,7 @@
 <template>
-  <AppLayout :showTabs="true" contentWidth="narrow">
+  <AppLayout :showTabs="true">
     <template #header>
-      <AppHeader title="마이" :showBack="true" />
+      <AppHeader title="My" />
     </template>
 
     <section class="section">

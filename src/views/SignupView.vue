@@ -1,7 +1,7 @@
 <template>
-  <AppLayout contentWidth="narrow">
+  <AppLayout>
     <template #header>
-      <AppHeader title="회원가입" :showBack="true" />
+      <AppHeader title="회원가입" />
     </template>
 
     <form class="stack" @submit.prevent="onSubmit">
