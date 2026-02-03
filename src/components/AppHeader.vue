@@ -1,6 +1,6 @@
 <template>
   <header class="app-header">
-    <div class="header-inner">
+    <div class="header-inner" :class="contentWidth">
       <div class="side left">
         <button v-if="showBack" class="text-button" type="button" @click="goBack">
           ← 뒤로가기
@@ -27,14 +27,31 @@ const props = withDefaults(
     title: string;
     showBack?: boolean;
     showLogout?: boolean;
+    backTo?: string;
+    contentWidth?: 'wide' | 'narrow';
+    onBack?: () => void;
   }>(),
-  { showBack: false, showLogout: false },
+  {
+    showBack: false,
+    showLogout: false,
+    contentWidth: 'wide',
+    backTo: undefined,
+    onBack: undefined,
+  },
 );
 
 const router = useRouter();
 const authStore = useAuthStore();
 
 const goBack = () => {
+  if (props.onBack) {
+    props.onBack();
+    return;
+  }
+  if (props.backTo) {
+    router.push(props.backTo);
+    return;
+  }
   router.back();
 };
 
@@ -54,13 +71,20 @@ const handleLogout = () => {
 }
 
 .header-inner {
-  max-width: 480px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding: 14px 20px;
   gap: 8px;
+}
+
+.header-inner.wide {
+  max-width: 960px;
+}
+
+.header-inner.narrow {
+  max-width: 480px;
 }
 
 .side {

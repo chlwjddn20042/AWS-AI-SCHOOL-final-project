@@ -1,5 +1,5 @@
 <template>
-  <AppLayout :showTabs="false" contentWidth="narrow">
+  <AppLayout :showTabs="false">
     <div class="loading">
       <div class="spinner" aria-hidden="true"></div>
       <p class="muted">분석 중입니다...</p>

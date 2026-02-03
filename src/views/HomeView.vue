@@ -1,7 +1,7 @@
 <template>
   <AppLayout :showTabs="true" contentWidth="narrow">
     <template #header>
-      <AppHeader title="다마코치" :showLogout="true" />
+      <AppHeader title="다마코치" :showLogout="true" contentWidth="narrow" />
     </template>
 
     <section class="character-card">
@@ -17,44 +17,63 @@
         v-for="item in questItems"
         :key="item.title"
         class="quest-row"
-        :class="{ highlight: item.highlight }"
+        :class="{ highlight: item.type === 'weekly', done: isCompleted(item.title) }"
         type="button"
-        @click="toggleQuest(item)"
+        :disabled="isCompleted(item.title)"
+        @click="openConfirm(item.title)"
       >
-        <span class="status-dot" :class="{ done: item.checked }"></span>
+        <span class="status-dot" :class="{ done: isCompleted(item.title) }"></span>
         <span class="quest-title">{{ item.title }}</span>
-        <span class="chevron">›</span>
+        <span class="chevron" aria-hidden="true">✓</span>
       </button>
     </section>
+
+    <div v-if="confirmTarget" class="dialog-backdrop" role="presentation">
+      <div class="dialog" role="dialog" aria-modal="true">
+        <p class="dialog-title">퀘스트를 완료 하셨습니까?</p>
+        <div class="dialog-actions">
+          <button class="ghost" type="button" @click="closeConfirm">아니오</button>
+          <button class="primary" type="button" @click="confirmComplete">예</button>
+        </div>
+      </div>
+    </div>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { computed, ref } from 'vue';
 import AppLayout from '../layouts/AppLayout.vue';
 import AppHeader from '../components/AppHeader.vue';
 import { useQuestStore } from '../stores/questStore';
-
-type HomeQuest = {
-  title: string;
-  checked: boolean;
-  highlight?: boolean;
-};
+import { questService } from '../services/questService';
 
 const questStore = useQuestStore();
 
-const questItems = reactive<HomeQuest[]>([
-  { title: '물 1L 이상 마시기', checked: false },
-  { title: '10회 이상 자리에서 일어나 스트레칭', checked: false },
-  { title: '일일 퀘스트', checked: false },
-  { title: '주간 퀘스트', checked: false, highlight: true },
-]);
+const questItems = questService.getHomeQuestItems();
+const confirmTarget = ref<string | null>(null);
 
-const toggleQuest = (item: HomeQuest) => {
-  item.checked = !item.checked;
-  if (item.checked) {
-    questStore.addEvent(item.title, 'completed');
+const todayKey = computed(() => new Date().toISOString().slice(0, 10));
+const completedMap = computed(() => questStore.homeChecklistState[todayKey.value] || {});
+
+const isCompleted = (title: string) => Boolean(completedMap.value[title]);
+
+const openConfirm = (title: string) => {
+  if (isCompleted(title)) {
+    return;
   }
+  confirmTarget.value = title;
+};
+
+const closeConfirm = () => {
+  confirmTarget.value = null;
+};
+
+const confirmComplete = () => {
+  if (!confirmTarget.value) {
+    return;
+  }
+  questStore.completeHomeQuest(confirmTarget.value);
+  confirmTarget.value = null;
 };
 </script>
 
@@ -117,6 +136,10 @@ const toggleQuest = (item: HomeQuest) => {
   font-weight: 600;
 }
 
+.quest-row.done {
+  opacity: 0.6;
+}
+
 .status-dot {
   width: 10px;
   height: 10px;
@@ -134,5 +157,57 @@ const toggleQuest = (item: HomeQuest) => {
 
 .chevron {
   color: var(--muted);
+}
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 20;
+}
+
+.dialog {
+  width: min(320px, 90vw);
+  background: var(--surface);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: center;
+}
+
+.dialog-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.dialog-actions button {
+  flex: 1;
+  border-radius: 12px;
+  padding: 10px 0;
+  font-size: 13px;
+}
+
+.ghost {
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.primary {
+  border: 1px solid var(--text);
+  background: var(--text);
+  color: #fff;
 }
 </style>

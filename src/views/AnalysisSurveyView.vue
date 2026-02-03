@@ -1,7 +1,7 @@
 <template>
-  <AppLayout contentWidth="narrow">
+  <AppLayout>
     <template #header>
-      <AppHeader title="성향 분석 입력" :showBack="true" />
+      <AppHeader title="성향 분석 입력" :showBack="true" :onBack="handleBack" />
     </template>
 
     <div class="survey">
@@ -79,6 +79,14 @@ const prevStep = () => {
   if (step.value > 1) {
     step.value -= 1;
   }
+};
+
+const handleBack = () => {
+  if (step.value > 1) {
+    step.value -= 1;
+    return;
+  }
+  router.push('/analysis/youtube');
 };
 </script>
 

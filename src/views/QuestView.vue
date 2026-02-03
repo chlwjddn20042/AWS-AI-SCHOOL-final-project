@@ -1,7 +1,7 @@
 <template>
-  <AppLayout :showTabs="true" contentWidth="narrow">
+  <AppLayout :showTabs="true">
     <template #header>
-      <AppHeader title="퀘스트" :showBack="true">
+      <AppHeader title="퀘스트">
         <template #right>
           <button class="icon-button" type="button" @click="goHistory" aria-label="퀘스트 히스토리">
             📅
@@ -24,16 +24,16 @@
         </button>
       </div>
 
+      <div class="delete-section" v-if="checkedCount">
+        <button class="delete-button" type="button" @click="deleteChecked">삭제</button>
+      </div>
+
       <div class="list">
         <label v-for="item in tasks" :key="item.id" class="task">
           <input type="checkbox" :checked="item.checked" @change="toggle(item.id)" />
           <span>{{ item.title }}</span>
         </label>
       </div>
-    </div>
-
-    <div class="delete-section" v-if="checkedCount">
-      <button class="delete-button" type="button" @click="deleteChecked">삭제</button>
     </div>
   </AppLayout>
 </template>
@@ -143,7 +143,7 @@ const goHistory = () => {
 .delete-section {
   display: flex;
   justify-content: center;
-  margin-top: 24px;
+  margin-top: 16px;
 }
 
 .delete-button {

@@ -1,7 +1,7 @@
 <template>
-  <AppLayout contentWidth="narrow">
+  <AppLayout>
     <template #header>
-      <AppHeader title="취향 가져오기" :showBack="true" />
+      <AppHeader title="취향 가져오기" :showBack="true" backTo="/analysis/input" />
     </template>
 
     <div class="section">

@@ -1,7 +1,7 @@
 <template>
-  <AppLayout contentWidth="narrow">
+  <AppLayout>
     <template #header>
-      <AppHeader title="시작" :showBack="true" />
+      <AppHeader title="시작" />
     </template>
 
     <section class="stack">

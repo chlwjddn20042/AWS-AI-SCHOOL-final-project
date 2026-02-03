@@ -10,17 +10,16 @@ export type QuestItem = {
   checked: boolean;
 };
 
-export type QuestEvent = {
-  id: string;
-  title: string;
-  status: 'completed' | 'deleted';
-  createdAt: string;
+export type QuestHistory = {
+  completed: string[];
+  deleted: string[];
 };
 
 type QuestState = {
   daily: QuestItem[];
   weekly: QuestItem[];
-  eventsByDate: Record<string, QuestEvent[]>;
+  completionByDate: Record<string, QuestHistory>;
+  homeChecklistState: Record<string, Record<string, boolean>>;
 };
 
 const ensureList = (type: QuestType, list: QuestItem[]) => {
@@ -42,7 +41,8 @@ export const useQuestStore = defineStore('quest', {
       'weekly',
       loadFromStorage('quest.weekly', questService.getInitialTasks('weekly')),
     ),
-    eventsByDate: loadFromStorage('quest.eventsByDate', {}),
+    completionByDate: loadFromStorage('quest.completionByDate', {}),
+    homeChecklistState: loadFromStorage('quest.homeChecklistState', {}),
   }),
   actions: {
     toggleTask(type: QuestType, taskId: string) {
@@ -52,11 +52,6 @@ export const useQuestStore = defineStore('quest', {
       );
       this[listKey] = tasks;
       saveToStorage(`quest.${listKey}`, tasks);
-
-      const updated = tasks.find((task) => task.id === taskId);
-      if (updated?.checked) {
-        this.addEvent(updated.title, 'completed');
-      }
     },
     deleteChecked(type: QuestType) {
       const listKey = type === 'daily' ? 'daily' : 'weekly';
@@ -65,7 +60,8 @@ export const useQuestStore = defineStore('quest', {
       if (!toDelete.length) {
         return;
       }
-      toDelete.forEach((task) => this.addEvent(task.title, 'deleted'));
+      const dateKey = new Date().toISOString().slice(0, 10);
+      toDelete.forEach((task) => this.addHistory(task.title, 'deleted', dateKey));
       const remaining = current.filter((task) => !task.checked);
       const replacements = questService.getReplacementTasks(
         type,
@@ -75,17 +71,28 @@ export const useQuestStore = defineStore('quest', {
       this[listKey] = ensureList(type, [...remaining, ...replacements]);
       saveToStorage(`quest.${listKey}`, this[listKey]);
     },
-    addEvent(title: string, status: QuestEvent['status'], date = new Date()) {
-      const key = date.toISOString().slice(0, 10);
-      const event: QuestEvent = {
-        id: `${status}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        title,
-        status,
-        createdAt: date.toISOString(),
-      };
-      const current = this.eventsByDate[key] || [];
-      this.eventsByDate = { ...this.eventsByDate, [key]: [event, ...current] };
-      saveToStorage('quest.eventsByDate', this.eventsByDate);
+    addHistory(title: string, status: 'completed' | 'deleted', dateKey: string) {
+      const current = this.completionByDate[dateKey] || { completed: [], deleted: [] };
+      if (status === 'completed') {
+        if (!current.completed.includes(title)) {
+          current.completed = [...current.completed, title];
+        }
+      } else if (!current.deleted.includes(title)) {
+        current.deleted = [...current.deleted, title];
+      }
+      this.completionByDate = { ...this.completionByDate, [dateKey]: current };
+      saveToStorage('quest.completionByDate', this.completionByDate);
+    },
+    completeHomeQuest(title: string, date = new Date()) {
+      const dateKey = date.toISOString().slice(0, 10);
+      const current = this.homeChecklistState[dateKey] || {};
+      if (current[title]) {
+        return;
+      }
+      const updated = { ...current, [title]: true };
+      this.homeChecklistState = { ...this.homeChecklistState, [dateKey]: updated };
+      saveToStorage('quest.homeChecklistState', this.homeChecklistState);
+      this.addHistory(title, 'completed', dateKey);
     },
   },
 });
