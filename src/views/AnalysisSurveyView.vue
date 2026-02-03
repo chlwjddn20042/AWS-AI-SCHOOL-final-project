@@ -1,58 +1,181 @@
 <template>
-  <AppLayout title="설문" :showTabs="true">
-    <form class="section" @submit.prevent="goLoading">
-      <div v-for="item in questions" :key="item.id" class="section">
-        <span>{{ item.text }}</span>
-        <div class="radio-row">
-          <label v-for="score in scores" :key="score">
-            <input
-              type="radio"
-              :name="item.id"
-              :value="score"
-              :checked="answers[item.id] === score"
-              @change="updateAnswer(item.id, score)"
-            />
-            {{ score }}
-          </label>
+  <AppLayout title="성향 분석 입력" :showTabs="false" contentWidth="wide">
+    <div class="survey">
+      <div class="survey-header">
+        <div class="survey-title">
+          <h2>성향 분석 입력</h2>
+          <span class="muted">{{ currentStep }}/{{ totalSteps }}</span>
+        </div>
+        <div class="progress">
+          <div class="progress-bar" :style="{ width: progressPercent + '%' }"></div>
         </div>
       </div>
-      <PrimaryButton type="submit">완료</PrimaryButton>
-    </form>
+
+      <div class="survey-body">
+        <div v-for="item in pageQuestions" :key="item.index" class="question">
+          <span class="question-text">{{ item.text }}</span>
+          <div class="radio-row">
+            <label v-for="score in scores" :key="score" class="choice">
+              <input
+                type="radio"
+                :name="`q-${item.index}`"
+                :value="score"
+                :checked="answers[item.index] === score"
+                @change="updateAnswer(item.index, score)"
+              />
+              {{ score }}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="survey-actions">
+        <button class="secondary" type="button" :disabled="currentStep === 1" @click="prevStep">
+          이전
+        </button>
+        <button class="primary" type="button" @click="nextStep">
+          {{ currentStep === totalSteps ? '완료' : '다음' }}
+        </button>
+      </div>
+    </div>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import AppLayout from '../layouts/AppLayout.vue';
-import PrimaryButton from '../components/PrimaryButton.vue';
 import { useAnalysisStore } from '../stores/analysisStore';
 
 const router = useRouter();
 const analysisStore = useAnalysisStore();
 
+const totalSteps = 5;
+const questionsPerPage = 10;
+const currentStep = ref(1);
 const scores = [1, 2, 3, 4, 5];
-const questions = [
-  { id: 'q1', text: '새로운 자극이 필요해요' },
-  { id: 'q2', text: '규칙을 지키는 편이에요' },
-  { id: 'q3', text: '감정을 자주 기록해요' },
-  { id: 'q4', text: '혼자 있는 시간이 좋아요' },
-  { id: 'q5', text: '즉흥적인 선택을 해요' },
-  { id: 'q6', text: '루틴이 마음을 편하게 해요' },
-  { id: 'q7', text: '사람들과 대화가 즐거워요' },
-  { id: 'q8', text: '운동이 에너지를 줘요' },
-  { id: 'q9', text: '도전을 즐겨요' },
-  { id: 'q10', text: '새로운 목표를 세워요' },
-];
 
-const answers = reactive({ ...analysisStore.surveyAnswers });
+const questions = Array.from({ length: 50 }, (_, index) => ({
+  index,
+  text: `문항 ${index + 1}: 임시 질문 텍스트`,
+}));
 
-const updateAnswer = (id: string, score: number) => {
-  answers[id] = score;
-  analysisStore.updateSurvey(id, score);
+const answers = computed(() => analysisStore.surveyAnswers);
+
+const pageQuestions = computed(() => {
+  const start = (currentStep.value - 1) * questionsPerPage;
+  return questions.slice(start, start + questionsPerPage);
+});
+
+const progressPercent = computed(() => (currentStep.value / totalSteps) * 100);
+
+const updateAnswer = (index: number, score: number) => {
+  analysisStore.updateSurvey(index, score);
 };
 
-const goLoading = () => {
+const prevStep = () => {
+  if (currentStep.value > 1) {
+    currentStep.value -= 1;
+  }
+};
+
+const nextStep = () => {
+  if (currentStep.value < totalSteps) {
+    currentStep.value += 1;
+    return;
+  }
   router.push('/analysis/loading');
 };
 </script>
+
+<style scoped>
+.survey {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.survey-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.survey-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.survey-title h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--primary);
+}
+
+.survey-body {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.question {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.question-text {
+  font-size: 14px;
+}
+
+.choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 10px;
+}
+
+.survey-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.secondary,
+.primary {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+</style>

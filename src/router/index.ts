@@ -7,10 +7,10 @@ import SignupView from '../views/SignupView.vue';
 import HomeView from '../views/HomeView.vue';
 import AnalysisStartView from '../views/AnalysisStartView.vue';
 import AnalysisInputView from '../views/AnalysisInputView.vue';
+import AnalysisYoutubeView from '../views/AnalysisYoutubeView.vue';
 import AnalysisSurveyView from '../views/AnalysisSurveyView.vue';
 import AnalysisLoadingView from '../views/AnalysisLoadingView.vue';
 import AnalysisResultView from '../views/AnalysisResultView.vue';
-import CoachingView from '../views/CoachingView.vue';
 import QuestView from '../views/QuestView.vue';
 import QuestHistoryView from '../views/QuestHistoryView.vue';
 import ChatbotView from '../views/ChatbotView.vue';
@@ -30,7 +30,12 @@ const router = createRouter({
     },
     {
       path: '/analysis',
-      name: 'analysis',
+      redirect: '/analysis/start',
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/analysis/start',
+      name: 'analysis-start',
       component: AnalysisStartView,
       meta: { requiresAuth: true },
     },
@@ -38,6 +43,12 @@ const router = createRouter({
       path: '/analysis/input',
       name: 'analysis-input',
       component: AnalysisInputView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/analysis/youtube',
+      name: 'analysis-youtube',
+      component: AnalysisYoutubeView,
       meta: { requiresAuth: true },
     },
     {
@@ -53,15 +64,9 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/analysis/result',
+      path: '/analysis/result/:id',
       name: 'analysis-result',
       component: AnalysisResultView,
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/coaching',
-      name: 'coaching',
-      component: CoachingView,
       meta: { requiresAuth: true },
     },
     {

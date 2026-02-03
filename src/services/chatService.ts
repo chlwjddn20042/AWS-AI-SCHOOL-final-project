@@ -5,7 +5,7 @@ export const chatService = {
     return {
       id: `bot-${Date.now()}`,
       role: 'bot',
-      text: `메아리: ${text}`,
+      text,
     };
   },
 };

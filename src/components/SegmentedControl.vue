@@ -23,20 +23,24 @@ defineEmits<{ 'update:modelValue': [value: string] }>();
 .segmented {
   display: flex;
   gap: 8px;
+  background: var(--surface-muted);
+  padding: 4px;
+  border-radius: 12px;
 }
 
 .segment {
   flex: 1;
-  padding: 10px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: #fff;
-  color: var(--line);
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
 }
 
 .segment.active {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
 }
 </style>

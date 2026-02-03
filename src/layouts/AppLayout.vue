@@ -1,11 +1,17 @@
 <template>
   <div class="layout">
-    <header class="header">
-      <h1 class="title">{{ title }}</h1>
-      <button class="menu" type="button">메뉴</button>
+    <header v-if="showHeader" class="header">
+      <div class="header-inner">
+        <h1 class="title">{{ title }}</h1>
+        <div class="header-action">
+          <slot name="header-action" />
+        </div>
+      </div>
     </header>
     <main class="content">
-      <slot />
+      <div class="content-inner" :class="contentWidth">
+        <slot />
+      </div>
     </main>
     <BottomTabBar v-if="showTabs" />
   </div>
@@ -14,7 +20,20 @@
 <script setup lang="ts">
 import BottomTabBar from '../components/BottomTabBar.vue';
 
-defineProps<{ title?: string; showTabs?: boolean }>();
+withDefaults(
+  defineProps<{
+    title?: string;
+    showTabs?: boolean;
+    showHeader?: boolean;
+    contentWidth?: 'wide' | 'narrow';
+  }>(),
+  {
+    title: '',
+    showTabs: false,
+    showHeader: true,
+    contentWidth: 'wide',
+  },
+);
 </script>
 
 <style scoped>
@@ -25,11 +44,17 @@ defineProps<{ title?: string; showTabs?: boolean }>();
 }
 
 .header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.header-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px 20px 12px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 16px 20px 8px;
-  color: var(--line);
+  justify-content: space-between;
 }
 
 .title {
@@ -37,19 +62,30 @@ defineProps<{ title?: string; showTabs?: boolean }>();
   margin: 0;
 }
 
-.menu {
-  border: 1px solid var(--line);
-  background: #fff;
-  border-radius: 999px;
-  padding: 6px 12px;
-  color: var(--line);
+.header-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .content {
   flex: 1;
-  padding: 12px 20px 20px;
+  padding: 20px 0 24px;
+}
+
+.content-inner {
+  margin: 0 auto;
+  padding: 0 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.content-inner.wide {
+  max-width: 960px;
+}
+
+.content-inner.narrow {
+  max-width: 480px;
 }
 </style>

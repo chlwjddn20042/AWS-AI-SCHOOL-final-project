@@ -38,14 +38,20 @@ defineEmits<{ 'update:modelValue': [value: string] }>();
 }
 
 .label {
-  color: var(--line);
+  color: var(--muted);
 }
 
 .input {
   padding: 10px 12px;
   border-radius: 12px;
-  border: 1px solid var(--line);
-  background: #fff;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.input:focus {
+  outline: 2px solid rgba(37, 99, 235, 0.2);
+  border-color: var(--primary);
 }
 
 .textarea {

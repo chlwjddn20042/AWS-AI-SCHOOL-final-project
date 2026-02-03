@@ -28,15 +28,11 @@ export const authService = {
       return {
         name: '사용자',
         email,
-        gender: '',
-        birthDate: '',
       };
     }
     return {
       name: found.name,
       email: found.email,
-      gender: found.gender,
-      birthDate: found.birthDate,
     };
   },
 };
