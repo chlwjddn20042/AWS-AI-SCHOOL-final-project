@@ -1,7 +1,13 @@
 <template>
-  <AppLayout title="퀘스트" :showTabs="true" contentWidth="narrow">
-    <template #header-action>
-      <button class="icon-button" type="button" @click="goHistory" aria-label="히스토리">📅</button>
+  <AppLayout :showTabs="true" contentWidth="narrow">
+    <template #header>
+      <AppHeader title="퀘스트" :showBack="true">
+        <template #right>
+          <button class="icon-button" type="button" @click="goHistory" aria-label="퀘스트 히스토리">
+            📅
+          </button>
+        </template>
+      </AppHeader>
     </template>
 
     <div class="section">
@@ -25,6 +31,10 @@
         </label>
       </div>
     </div>
+
+    <div class="delete-section" v-if="checkedCount">
+      <button class="delete-button" type="button" @click="deleteChecked">삭제</button>
+    </div>
   </AppLayout>
 </template>
 
@@ -32,6 +42,7 @@
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AppLayout from '../layouts/AppLayout.vue';
+import AppHeader from '../components/AppHeader.vue';
 import { useQuestStore } from '../stores/questStore';
 
 const router = useRouter();
@@ -59,6 +70,8 @@ watch(
 
 const tasks = computed(() => (currentTab.value === 'daily' ? questStore.daily : questStore.weekly));
 
+const checkedCount = computed(() => tasks.value.filter((task) => task.checked).length);
+
 const toggle = (id: string) => {
   questStore.toggleTask(currentTab.value, id);
 };
@@ -66,6 +79,10 @@ const toggle = (id: string) => {
 const setTab = (tab: TabKey) => {
   currentTab.value = tab;
   router.replace({ query: { tab } });
+};
+
+const deleteChecked = () => {
+  questStore.deleteChecked(currentTab.value);
 };
 
 const goHistory = () => {
@@ -110,6 +127,7 @@ const goHistory = () => {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-top: 12px;
 }
 
 .task {
@@ -120,5 +138,20 @@ const goHistory = () => {
   border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--surface);
+}
+
+.delete-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.delete-button {
+  border: 1px solid var(--border);
+  background: #fff;
+  padding: 10px 24px;
+  border-radius: 999px;
+  color: var(--danger);
+  font-weight: 600;
 }
 </style>

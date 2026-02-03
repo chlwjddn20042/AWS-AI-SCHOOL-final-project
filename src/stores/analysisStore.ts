@@ -5,7 +5,17 @@ import { analysisService } from '../services/analysisService';
 export type AnalysisInputForm = {
   name: string;
   age: string;
-  occupation: string;
+  gender: string;
+  hobby: string;
+  sleepPattern: string;
+  exercise: string;
+  exerciseFrequency: string;
+  exerciseType: string;
+  petType: string;
+  mbti: string;
+  outingFrequency: string;
+  voiceFile: string;
+  documentFile: string;
 };
 
 export type YoutubeTaste = {
@@ -32,7 +42,17 @@ type AnalysisState = {
 const emptyForm: AnalysisInputForm = {
   name: '',
   age: '',
-  occupation: '',
+  gender: '',
+  hobby: '',
+  sleepPattern: '',
+  exercise: '',
+  exerciseFrequency: '',
+  exerciseType: '',
+  petType: '',
+  mbti: '',
+  outingFrequency: '',
+  voiceFile: '',
+  documentFile: '',
 };
 
 const emptyTaste: YoutubeTaste = {

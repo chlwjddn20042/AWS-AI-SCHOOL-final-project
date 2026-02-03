@@ -1,5 +1,9 @@
 <template>
-  <AppLayout title="분석 결과" :showTabs="false" contentWidth="narrow">
+  <AppLayout contentWidth="narrow">
+    <template #header>
+      <AppHeader title="분석 결과" :showBack="true" />
+    </template>
+
     <div class="section">
       <div class="summary-card">
         <h2>{{ result?.summary || '분석 결과' }}</h2>
@@ -15,11 +19,11 @@
         <p>{{ result?.taste || '데이터가 없습니다.' }}</p>
       </div>
       <div class="result-card">
-        <h3>행동 코칭</h3>
+        <h3>행동코칭</h3>
         <p>{{ result?.coaching || '데이터가 없습니다.' }}</p>
       </div>
 
-      <PrimaryButton type="button" @click="goMy">마이로 이동</PrimaryButton>
+      <PrimaryButton type="button" @click="goMy">마이페이지로 이동</PrimaryButton>
     </div>
   </AppLayout>
 </template>
@@ -28,6 +32,7 @@
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AppLayout from '../layouts/AppLayout.vue';
+import AppHeader from '../components/AppHeader.vue';
 import PrimaryButton from '../components/PrimaryButton.vue';
 import { useAnalysisStore } from '../stores/analysisStore';
 

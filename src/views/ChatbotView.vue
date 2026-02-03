@@ -1,5 +1,9 @@
 <template>
-  <AppLayout title="챗봇" :showTabs="true" contentWidth="narrow">
+  <AppLayout :showTabs="true" contentWidth="narrow">
+    <template #header>
+      <AppHeader title="챗봇" :showBack="true" />
+    </template>
+
     <div class="chat">
       <div class="messages">
         <div
@@ -22,6 +26,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import AppLayout from '../layouts/AppLayout.vue';
+import AppHeader from '../components/AppHeader.vue';
 import { useChatStore } from '../stores/chatStore';
 
 const chatStore = useChatStore();
@@ -43,7 +48,7 @@ const send = () => {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  height: calc(100vh - 160px);
+  height: calc(100vh - 180px);
 }
 
 .messages {
